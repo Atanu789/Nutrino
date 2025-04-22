@@ -1,16 +1,16 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { RouteProp } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
 
 // Import screens
-import DashboardScreen from '../features/dashboard/DashboardScreen';
 import ChatbotScreen from '../features/chatbot/ChatbotScreen';
-import TrackingScreen from '../features/tracking/TrackingScreen';
+import DashboardScreen from '../features/dashboard/DashboardScreen';
 import ProfileScreen from '../features/profile/ProfileScreen';
-import RecipesScreen from '../features/recipes/RecipesScreen';
 import RecipeDetailScreen from '../features/recipes/RecipeDetailScreen';
+import RecipesScreen from '../features/recipes/RecipesScreen';
+import TrackingScreen from '../features/tracking/TrackingScreen';
 
 // Import types
 import { RecipeStackParamList, TabParamList } from './types';
@@ -32,12 +32,12 @@ const Tab = createBottomTabNavigator<TabParamList>();
 
 function AppNavigator() {
   return (
-    <Tab.Navigator 
+    <Tab.Navigator
       screenOptions={({ route }: { route: RouteProp<TabParamList, keyof TabParamList> }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
           let iconName: keyof typeof Ionicons.glyphMap = 'home';
-          
+
           if (route.name === 'Dashboard') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Recipes') {
@@ -49,7 +49,7 @@ function AppNavigator() {
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
-          
+
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: '#399AA8',
@@ -73,4 +73,4 @@ function AppNavigator() {
   );
 }
 
-export default AppNavigator; 
+export default AppNavigator;
