@@ -1,193 +1,184 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useOAuth } from '@clerk/clerk-expo';
+import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
+import * as WebBrowser from 'expo-web-browser';
+import React from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AuthStackParamList } from '../../navigation/AuthNavigator';
-import { StatusBar } from 'expo-status-bar';
 
-type SignInScreenProps = {
-  navigation: StackNavigationProp<AuthStackParamList, 'SignIn'>;
-  setIsAuthenticated: (value: boolean) => void;
+// Ensure OAuth redirection can complete properly
+WebBrowser.maybeCompleteAuthSession();
+
+type SignInScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'SignIn'>;
+
+type Props = {
+  navigation: SignInScreenNavigationProp;
 };
 
-function SignInScreen({ navigation, setIsAuthenticated }: SignInScreenProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+function SignInScreen({ navigation }: Props) {
+  const { startOAuthFlow: googleAuth, isLoading: isGoogleLoading } = useOAuth({ strategy: "oauth_google" });
+  const { startOAuthFlow: appleAuth, isLoading: isAppleLoading } = useOAuth({ strategy: "oauth_apple" });
+  const { startOAuthFlow: facebookAuth, isLoading: isFacebookLoading } = useOAuth({ strategy: "oauth_facebook" });
 
-  const handleSignIn = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
-      return;
+  const handleOAuthSignIn = async (
+    authMethod: () => Promise<{
+      createdSessionId: string | null;
+      setActive: ({ session }: { session: string }) => Promise<void>;
+    }>,
+    provider: string
+  ) => {
+    try {
+      const { createdSessionId, setActive } = await authMethod();
+
+      if (createdSessionId) {
+        // User successfully authenticated
+        await setActive({ session: createdSessionId });
+      }
+    } catch (err: any) {
+      console.error(`Error signing in with ${provider}:`, err);
+      Alert.alert("Authentication Error", `Failed to sign in with ${provider}`);
     }
-
-    setLoading(true);
-    // Simulate authentication
-    setTimeout(() => {
-      setLoading(false);
-      setIsAuthenticated(true);
-    }, 1500);
   };
 
+  const isLoading = isGoogleLoading || isAppleLoading || isFacebookLoading;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="auto" />
-      <Text style={styles.title}>Welcome Back</Text>
-      <Text style={styles.subtitle}>Sign in to your nutrition account</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Sign In</Text>
 
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="youremail@example.com"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-        </View>
+      <Text style={styles.subtitle}>Continue with your social account</Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Your password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-        </View>
-
+      <View style={styles.oauthContainer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('ForgotPassword')}
-          style={styles.forgotPassword}
+          style={[styles.oauthButton, styles.googleButton]}
+          onPress={() => handleOAuthSignIn(googleAuth, "Google")}
+          disabled={isLoading}
         >
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.signInButton}
-          onPress={handleSignIn}
-          disabled={loading || !email || !password}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
+          {isGoogleLoading ? (
+            <ActivityIndicator color="#ffffff" size="small" />
           ) : (
-            <Text style={styles.signInButtonText}>Sign In</Text>
+            <>
+              <Ionicons name="logo-google" size={24} color="#ffffff" />
+              <Text style={styles.oauthButtonText}>Google</Text>
+            </>
           )}
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.socialButton}
+          style={[styles.oauthButton, styles.appleButton]}
+          onPress={() => handleOAuthSignIn(appleAuth, "Apple")}
+          disabled={isLoading}
         >
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
+          {isAppleLoading ? (
+            <ActivityIndicator color="#ffffff" size="small" />
+          ) : (
+            <>
+              <Ionicons name="logo-apple" size={24} color="#ffffff" />
+              <Text style={styles.oauthButtonText}>Apple</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.socialButton}
+          style={[styles.oauthButton, styles.facebookButton]}
+          onPress={() => handleOAuthSignIn(facebookAuth, "Facebook")}
+          disabled={isLoading}
         >
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
+          {isFacebookLoading ? (
+            <ActivityIndicator color="#ffffff" size="small" />
+          ) : (
+            <>
+              <Ionicons name="logo-facebook" size={24} color="#ffffff" />
+              <Text style={styles.oauthButtonText}>Facebook</Text>
+            </>
+          )}
         </TouchableOpacity>
-
-        <View style={styles.signUpContainer}>
-          <Text style={styles.signUpText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signUpLink}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
       </View>
-    </SafeAreaView>
+
+      <View style={styles.dividerContainer}>
+        <View style={styles.divider} />
+        <Text style={styles.dividerText}>or</Text>
+        <View style={styles.divider} />
+      </View>
+
+      <View style={styles.signupContainer}>
+        <Text>Don't have an account? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.signupText}>Sign Up</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    justifyContent: 'center',
     padding: 20,
+    backgroundColor: '#f8f8f8',
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#333333',
-    marginTop: 40,
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#399AA8',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666666',
-    marginTop: 10,
-    marginBottom: 40,
+    textAlign: 'center',
+    marginBottom: 30,
+    color: '#666',
   },
-  form: {
+  oauthContainer: {
     width: '100%',
+    gap: 15,
   },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    color: '#333333',
-    marginBottom: 8,
-  },
-  input: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    fontSize: 16,
-    backgroundColor: 'white',
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 20,
-  },
-  forgotPasswordText: {
-    color: '#399AA8',
-    fontSize: 14,
-  },
-  signInButton: {
-    backgroundColor: '#399AA8',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
+  oauthButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'center',
+    padding: 15,
+    borderRadius: 8,
+    gap: 10,
   },
-  signInButtonText: {
-    color: 'white',
-    fontSize: 16,
+  googleButton: {
+    backgroundColor: '#DB4437',
+  },
+  appleButton: {
+    backgroundColor: '#000000',
+  },
+  facebookButton: {
+    backgroundColor: '#4267B2',
+  },
+  oauthButtonText: {
+    color: '#ffffff',
     fontWeight: 'bold',
-  },
-  socialButton: {
-    backgroundColor: 'white',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  socialButtonText: {
-    color: '#333333',
     fontSize: 16,
   },
-  signUpContainer: {
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  dividerText: {
+    marginHorizontal: 10,
+    color: '#666',
+  },
+  signupContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20,
   },
-  signUpText: {
-    color: '#666666',
-    fontSize: 14,
-  },
-  signUpLink: {
+  signupText: {
     color: '#399AA8',
-    fontSize: 14,
     fontWeight: 'bold',
   },
 });
 
-export default SignInScreen; 
+export default SignInScreen;
