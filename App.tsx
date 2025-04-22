@@ -1,19 +1,33 @@
-import React from 'react';
+import { ClerkProvider } from '@clerk/clerk-expo';
+import * as SecureStore from 'expo-secure-store';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer } from '@react-navigation/native';
-import AppNavigator from './src/navigation/AppNavigator';
 import { AppProvider } from './src/context/AppContext';
+import RootNavigator from './src/navigation/RootNavigator';
+
+// Clerk token cache using SecureStore
+const tokenCache = {
+  getToken: (key) => {
+    return SecureStore.getItemAsync(key);
+  },
+  saveToken: (key, value) => {
+    return SecureStore.setItemAsync(key, value);
+  },
+};
 
 export default function App() {
+  // Replace with your Clerk publishable key
+  const clerkPublishableKey = 'pk_test_bGliZXJhbC1tb2xsdXNrLTk0LmNsZXJrLmFjY291bnRzLmRldiQ';
+
   return (
-    <SafeAreaProvider>
-      <AppProvider>
-        <NavigationContainer>
-          <AppNavigator />
-        </NavigationContainer>
-        <StatusBar style="auto" />
-      </AppProvider>
-    </SafeAreaProvider>
+    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
+      <SafeAreaProvider>
+        <AppProvider>
+          <RootNavigator />
+          <StatusBar style="auto" />
+        </AppProvider>
+      </SafeAreaProvider>
+    </ClerkProvider>
   );
-} 
+}

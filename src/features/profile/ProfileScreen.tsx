@@ -1,7 +1,10 @@
+import { useAuth, useUser } from '@clerk/clerk-expo';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   Text,
@@ -10,27 +13,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { profileStyles } from '../../styles/ProfileStyles';
-// Mock user data
-const USER = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  avatar: 'https://via.placeholder.com/100',
-  stats: {
-    daysActive: 28,
-    mealsLogged: 84,
-    workoutsCompleted: 15
-  },
-  goals: {
-    current: 'Lose weight',
-    target: '10 lbs in 3 months',
-    progress: 40 // percentage
-  },
-  preferences: {
-    diet: 'Balanced',
-    allergies: ['Peanuts', 'Shellfish'],
-    favoriteRecipes: 8
-  }
-};
 
 // Menu items
 const MENU_ITEMS = [
@@ -79,6 +61,61 @@ const MENU_ITEMS = [
 ];
 
 function ProfileScreen() {
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const { signOut, isLoaded: isAuthLoaded } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+
+  // Mock data - in a real app, this would come from your backend
+  const USER_STATS = {
+    daysActive: 28,
+    mealsLogged: 84,
+    workoutsCompleted: 15
+  };
+
+  const USER_GOALS = {
+    current: 'Lose weight',
+    target: '10 lbs in 3 months',
+    progress: 40 // percentage
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsLoggingOut(true);
+              await signOut();
+              // The auth state change will automatically redirect to the login screen
+              // thanks to the RootNavigator we set up earlier
+            } catch (error) {
+              console.error("Error signing out:", error);
+              Alert.alert("Error", "Failed to log out. Please try again.");
+            } finally {
+              setIsLoggingOut(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  if (!isUserLoaded || !isAuthLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#399AA8" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={profileStyles.container}>
       <StatusBar style="auto" />
@@ -89,13 +126,25 @@ function ProfileScreen() {
 
       <ScrollView>
         <View style={profileStyles.profileHeader}>
-          <Image
-            source={{ uri: USER.avatar }}
-            style={profileStyles.avatar}
-          />
+          {user?.imageUrl ? (
+            <Image
+              source={{ uri: user.imageUrl }}
+              style={profileStyles.avatar}
+            />
+          ) : (
+            <View style={[profileStyles.avatar, { backgroundColor: '#399AA8', justifyContent: 'center', alignItems: 'center' }]}>
+              <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold' }}>
+                {user?.firstName?.[0] || ''}{user?.lastName?.[0] || ''}
+              </Text>
+            </View>
+          )}
           <View style={profileStyles.profileInfo}>
-            <Text style={profileStyles.userName}>{USER.name}</Text>
-            <Text style={profileStyles.userEmail}>{USER.email}</Text>
+            <Text style={profileStyles.userName}>
+              {user?.firstName} {user?.lastName}
+            </Text>
+            <Text style={profileStyles.userEmail}>
+              {user?.primaryEmailAddress?.emailAddress}
+            </Text>
           </View>
           <TouchableOpacity style={profileStyles.editButton}>
             <Ionicons name="pencil" size={16} color="#399AA8" />
@@ -104,21 +153,21 @@ function ProfileScreen() {
 
         <View style={profileStyles.statsCard}>
           <View style={profileStyles.statItem}>
-            <Text style={profileStyles.statValue}>{USER.stats.daysActive}</Text>
+            <Text style={profileStyles.statValue}>{USER_STATS.daysActive}</Text>
             <Text style={profileStyles.statLabel}>Days Active</Text>
           </View>
 
           <View style={profileStyles.statDivider} />
 
           <View style={profileStyles.statItem}>
-            <Text style={profileStyles.statValue}>{USER.stats.mealsLogged}</Text>
+            <Text style={profileStyles.statValue}>{USER_STATS.mealsLogged}</Text>
             <Text style={profileStyles.statLabel}>Meals Logged</Text>
           </View>
 
           <View style={profileStyles.statDivider} />
 
           <View style={profileStyles.statItem}>
-            <Text style={profileStyles.statValue}>{USER.stats.workoutsCompleted}</Text>
+            <Text style={profileStyles.statValue}>{USER_STATS.workoutsCompleted}</Text>
             <Text style={profileStyles.statLabel}>Workouts</Text>
           </View>
         </View>
@@ -131,14 +180,14 @@ function ProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={profileStyles.goalType}>{USER.goals.current}</Text>
-          <Text style={profileStyles.goalTarget}>{USER.goals.target}</Text>
+          <Text style={profileStyles.goalType}>{USER_GOALS.current}</Text>
+          <Text style={profileStyles.goalTarget}>{USER_GOALS.target}</Text>
 
           <View style={profileStyles.progressContainer}>
             <View style={profileStyles.progressBar}>
-              <View style={[profileStyles.progressFill, { width: `${USER.goals.progress}%` }]} />
+              <View style={[profileStyles.progressFill, { width: `${USER_GOALS.progress}%` }]} />
             </View>
-            <Text style={profileStyles.progressText}>{USER.goals.progress}% complete</Text>
+            <Text style={profileStyles.progressText}>{USER_GOALS.progress}% complete</Text>
           </View>
         </View>
 
@@ -159,9 +208,19 @@ function ProfileScreen() {
           ))}
         </View>
 
-        <TouchableOpacity style={profileStyles.logoutButton}>
-          <Ionicons name="log-out-outline" size={20} color="#FF5252" />
-          <Text style={profileStyles.logoutText}>Log Out</Text>
+        <TouchableOpacity
+          style={profileStyles.logoutButton}
+          onPress={handleLogout}
+          disabled={isLoggingOut}
+        >
+          {isLoggingOut ? (
+            <ActivityIndicator size="small" color="#FF5252" />
+          ) : (
+            <>
+              <Ionicons name="log-out-outline" size={20} color="#FF5252" />
+              <Text style={profileStyles.logoutText}>Log Out</Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <Text style={profileStyles.versionText}>Version 1.0.0</Text>
@@ -169,6 +228,5 @@ function ProfileScreen() {
     </SafeAreaView>
   );
 }
-
 
 export default ProfileScreen;
