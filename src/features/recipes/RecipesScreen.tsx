@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  FlatList, 
-  Image, 
-  StyleSheet,
-  ScrollView
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { StatusBar } from 'expo-status-bar';
+import React, { useState } from 'react';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RecipeStackParamList } from '../../navigation/types';
-
+import { recipeScreenStyles } from '../../styles/RecipeScreenStyles';
 // Mock data for recipes
 const RECIPES = [
   {
@@ -85,72 +84,72 @@ function RecipesScreen({ navigation }: RecipesScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMealType, setSelectedMealType] = useState<string | null>(null);
   const [selectedDietaryType, setSelectedDietaryType] = useState<string | null>(null);
-  
+
   // Filter recipes based on search and filters
   const filteredRecipes = RECIPES.filter(recipe => {
     // Apply search filter
     if (searchQuery && !recipe.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
-    
+
     // Apply meal type filter
     if (selectedMealType && recipe.mealType !== selectedMealType) {
       return false;
     }
-    
+
     // Apply dietary type filter
     if (selectedDietaryType && !recipe.dietaryType.includes(selectedDietaryType)) {
       return false;
     }
-    
+
     return true;
   });
-  
+
   const handleRecipePress = (recipeId: string) => {
     navigation.navigate('RecipeDetail', { recipeId });
   };
-  
+
   const renderRecipeItem = ({ item }: { item: typeof RECIPES[0] }) => (
-    <TouchableOpacity 
-      style={styles.recipeCard}
+    <TouchableOpacity
+      style={recipeScreenStyles.recipeCard}
       onPress={() => handleRecipePress(item.id)}
     >
-      <Image source={{ uri: item.image }} style={styles.recipeImage} />
-      <View style={styles.recipeContent}>
-        <Text style={styles.recipeTitle}>{item.title}</Text>
-        
-        <View style={styles.recipeMetaContainer}>
-          <View style={styles.recipeMeta}>
+      <Image source={{ uri: item.image }} style={recipeScreenStyles.recipeImage} />
+      <View style={recipeScreenStyles.recipeContent}>
+        <Text style={recipeScreenStyles.recipeTitle}>{item.title}</Text>
+
+        <View style={recipeScreenStyles.recipeMetaContainer}>
+          <View style={recipeScreenStyles.recipeMeta}>
             <Ionicons name="time-outline" size={14} color="#666666" />
-            <Text style={styles.recipeMetaText}>{item.prepTime}</Text>
+            <Text style={recipeScreenStyles.recipeMetaText}>{item.prepTime}</Text>
           </View>
-          
-          <View style={styles.recipeMeta}>
+
+          <View style={recipeScreenStyles.recipeMeta}>
             <Ionicons name="flame-outline" size={14} color="#666666" />
-            <Text style={styles.recipeMetaText}>{item.calories} cal</Text>
+            <Text style={recipeScreenStyles.recipeMetaText}>{item.calories} cal</Text>
           </View>
         </View>
-        
-        <View style={styles.tagContainer}>
+
+        <View style={recipeScreenStyles.tagContainer}>
           {item.dietaryType.slice(0, 2).map((tag, index) => (
-            <View key={index} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
+            <View key={index} style={recipeScreenStyles.tag}>
+              <Text style={recipeScreenStyles.tagText}>{tag}</Text>
             </View>
           ))}
         </View>
       </View>
     </TouchableOpacity>
   );
-  
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={recipeScreenStyles.container}>
       <StatusBar style="auto" />
-      
-      <View style={styles.header}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#666666" style={styles.searchIcon} />
+
+      <View style={recipeScreenStyles.header}>
+        <View style={recipeScreenStyles.searchContainer}>
+          <Ionicons name="search" size={20} color="#666666" style={recipeScreenStyles.searchIcon} />
           <TextInput
-            style={styles.searchInput}
+            style={recipeScreenStyles.searchInput}
             placeholder="Search recipes..."
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -162,44 +161,44 @@ function RecipesScreen({ navigation }: RecipesScreenProps) {
           ) : null}
         </View>
       </View>
-      
-      <View style={styles.filtersContainer}>
-        <Text style={styles.filterTitle}>Meal Type</Text>
-        <ScrollView 
-          horizontal 
+
+      <View style={recipeScreenStyles.filtersContainer}>
+        <Text style={recipeScreenStyles.filterTitle}>Meal Type</Text>
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScrollContent}
+          contentContainerStyle={recipeScreenStyles.filterScrollContent}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.filterChip,
-              selectedMealType === null && styles.filterChipSelected
+              recipeScreenStyles.filterChip,
+              selectedMealType === null && recipeScreenStyles.filterChipSelected
             ]}
             onPress={() => setSelectedMealType(null)}
           >
-            <Text 
+            <Text
               style={[
-                styles.filterChipText,
-                selectedMealType === null && styles.filterChipTextSelected
+                recipeScreenStyles.filterChipText,
+                selectedMealType === null && recipeScreenStyles.filterChipTextSelected
               ]}
             >
               All
             </Text>
           </TouchableOpacity>
-          
+
           {MEAL_TYPES.map((type) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               key={type}
               style={[
-                styles.filterChip,
-                selectedMealType === type && styles.filterChipSelected
+                recipeScreenStyles.filterChip,
+                selectedMealType === type && recipeScreenStyles.filterChipSelected
               ]}
               onPress={() => setSelectedMealType(type === selectedMealType ? null : type)}
             >
-              <Text 
+              <Text
                 style={[
-                  styles.filterChipText,
-                  selectedMealType === type && styles.filterChipTextSelected
+                  recipeScreenStyles.filterChipText,
+                  selectedMealType === type && recipeScreenStyles.filterChipTextSelected
                 ]}
               >
                 {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -207,43 +206,43 @@ function RecipesScreen({ navigation }: RecipesScreenProps) {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        
-        <Text style={styles.filterTitle}>Dietary Needs</Text>
-        <ScrollView 
-          horizontal 
+
+        <Text style={recipeScreenStyles.filterTitle}>Dietary Needs</Text>
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScrollContent}
+          contentContainerStyle={recipeScreenStyles.filterScrollContent}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.filterChip,
-              selectedDietaryType === null && styles.filterChipSelected
+              recipeScreenStyles.filterChip,
+              selectedDietaryType === null && recipeScreenStyles.filterChipSelected
             ]}
             onPress={() => setSelectedDietaryType(null)}
           >
-            <Text 
+            <Text
               style={[
-                styles.filterChipText,
-                selectedDietaryType === null && styles.filterChipTextSelected
+                recipeScreenStyles.filterChipText,
+                selectedDietaryType === null && recipeScreenStyles.filterChipTextSelected
               ]}
             >
               All
             </Text>
           </TouchableOpacity>
-          
+
           {DIETARY_TYPES.map((type) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               key={type}
               style={[
-                styles.filterChip,
-                selectedDietaryType === type && styles.filterChipSelected
+                recipeScreenStyles.filterChip,
+                selectedDietaryType === type && recipeScreenStyles.filterChipSelected
               ]}
               onPress={() => setSelectedDietaryType(type === selectedDietaryType ? null : type)}
             >
-              <Text 
+              <Text
                 style={[
-                  styles.filterChipText,
-                  selectedDietaryType === type && styles.filterChipTextSelected
+                  recipeScreenStyles.filterChipText,
+                  selectedDietaryType === type && recipeScreenStyles.filterChipTextSelected
                 ]}
               >
                 {type.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
@@ -252,17 +251,17 @@ function RecipesScreen({ navigation }: RecipesScreenProps) {
           ))}
         </ScrollView>
       </View>
-      
+
       <FlatList
         data={filteredRecipes}
         renderItem={renderRecipeItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.recipeList}
+        contentContainerStyle={recipeScreenStyles.recipeList}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+          <View style={recipeScreenStyles.emptyContainer}>
             <Ionicons name="search-outline" size={50} color="#CCCCCC" />
-            <Text style={styles.emptyText}>No recipes found for your search.</Text>
-            <Text style={styles.emptySubtext}>Try changing your filters or search term.</Text>
+            <Text style={recipeScreenStyles.emptyText}>No recipes found for your search.</Text>
+            <Text style={recipeScreenStyles.emptySubtext}>Try changing your filters or search term.</Text>
           </View>
         }
       />
@@ -270,142 +269,6 @@ function RecipesScreen({ navigation }: RecipesScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F1F3F4',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    color: '#333333',
-  },
-  filtersContainer: {
-    padding: 15,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 10,
-  },
-  filterScrollContent: {
-    paddingBottom: 15,
-  },
-  filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#F1F3F4',
-    borderRadius: 20,
-    marginRight: 8,
-  },
-  filterChipSelected: {
-    backgroundColor: '#399AA8',
-  },
-  filterChipText: {
-    fontSize: 14,
-    color: '#666666',
-  },
-  filterChipTextSelected: {
-    color: 'white',
-  },
-  recipeList: {
-    padding: 15,
-  },
-  recipeCard: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  recipeImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'cover',
-  },
-  recipeContent: {
-    padding: 12,
-  },
-  recipeTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333333',
-    marginBottom: 8,
-  },
-  recipeMetaContainer: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  recipeMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  recipeMetaText: {
-    fontSize: 14,
-    color: '#666666',
-    marginLeft: 4,
-  },
-  tagContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  tag: {
-    backgroundColor: '#F1F3F4',
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    marginRight: 6,
-  },
-  tagText: {
-    fontSize: 12,
-    color: '#666666',
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 30,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#666666',
-    marginTop: 15,
-    textAlign: 'center',
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#999999',
-    marginTop: 5,
-    textAlign: 'center',
-  },
-});
 
-export default RecipesScreen; 
+
+export default RecipesScreen;
