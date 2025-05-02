@@ -7,10 +7,16 @@ const router = express.Router();
 router.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
     try {
 
+        console.log('Webhook headers:', req.headers);
+
         const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
         if (!webhookSecret) {
+            console.error('Missing CLERK_WEBHOOK_SECRET environment variable');
             throw new Error('Please add CLERK_WEBHOOK_SECRET to your environment variables');
         }
+
+        console.log('Webhook secret first 4 chars:', webhookSecret.substring(0, 4));
+
 
         const svix = new Webhook(webhookSecret);
         const payload = req.body;
