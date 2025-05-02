@@ -18,7 +18,7 @@ const tokenCache = {
 
 export default function App() {
   // Replace with your Clerk publishable key
-  const clerkPublishableKey = 'pk_test_bGliZXJhbC1tb2xsdXNrLTk0LmNsZXJrLmFjY291bnRzLmRldiQ';
+  const clerkPublishableKey = 'pk_test_aW5maW5pdGUtY2hpcG11bmstNzMuY2xlcmsuYWNjb3VudHMuZGV2JA';
 
   return (
     <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
