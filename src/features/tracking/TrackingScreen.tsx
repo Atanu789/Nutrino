@@ -6,10 +6,13 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Pressable,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { trakingStyle } from '../../styles/TrackingStyles';
+import { trackingStyle } from '../../styles/TrackingStyles';
+
 // Sample data for the day's tracking
 const MEALS_DATA = [
   {
@@ -75,6 +78,15 @@ const PROGRESS_DATA = {
 function TrackingScreen() {
   const [date, setDate] = useState(new Date());
   const [waterIntake, setWaterIntake] = useState(WATER_INTAKE.current);
+  const [pressed, setPressed] = useState({});
+
+  const handlePressIn = (id) => {
+    setPressed(prev => ({ ...prev, [id]: true }));
+  };
+
+  const handlePressOut = (id) => {
+    setPressed(prev => ({ ...prev, [id]: false }));
+  };
 
   const increaseWater = () => {
     if (waterIntake < WATER_INTAKE.goal) {
@@ -88,46 +100,64 @@ function TrackingScreen() {
     }
   };
 
-  const renderMealItem = ({ item }: { item: typeof MEALS_DATA[0] }) => {
+  const renderMealItem = ({ item }) => {
     // Calculate total calories for this meal
     const totalCalories = item.items.reduce((sum, foodItem) => sum + foodItem.calories, 0);
+    const buttonId = `meal-${item.id}`;
 
     return (
-      <View style={trakingStyle.mealCard}>
-        <View style={trakingStyle.mealHeader}>
-          <View>
-            <Text style={trakingStyle.mealType}>{item.type}</Text>
-            <Text style={trakingStyle.mealTime}>{item.time}</Text>
-          </View>
-          <Text style={trakingStyle.mealCalories}>{totalCalories} cal</Text>
-        </View>
-
-        <View style={trakingStyle.mealItems}>
-          {item.items.length > 0 ? (
-            item.items.map((food, index) => (
-              <View key={index} style={trakingStyle.foodItem}>
-                <Text style={trakingStyle.foodName}>{food.name}</Text>
-                <Text style={trakingStyle.foodCalories}>{food.calories} cal</Text>
-              </View>
-            ))
-          ) : (
-            <View style={trakingStyle.emptyMeal}>
-              <Text style={trakingStyle.emptyText}>No food added yet</Text>
-              <TouchableOpacity style={trakingStyle.addButton}>
-                <Ionicons name="add" size={18} color="#399AA8" />
-                <Text style={trakingStyle.addButtonText}>Add Food</Text>
-              </TouchableOpacity>
+      <Pressable
+        style={[
+          trackingStyle.mealCard,
+          pressed[buttonId] && trackingStyle.mealCardPressed
+        ]}
+        onPressIn={() => handlePressIn(buttonId)}
+        onPressOut={() => handlePressOut(buttonId)}
+      >
+        <View style={trackingStyle.mealCardContent}>
+          <View style={trackingStyle.mealHeader}>
+            <View>
+              <Text style={trackingStyle.mealType}>{item.type}</Text>
+              <Text style={trackingStyle.mealTime}>{item.time}</Text>
             </View>
+            <Text style={trackingStyle.mealCalories}>{totalCalories} cal</Text>
+          </View>
+
+          <View style={trackingStyle.mealItems}>
+            {item.items.length > 0 ? (
+              item.items.map((food, index) => (
+                <View key={index} style={trackingStyle.foodItem}>
+                  <Text style={trackingStyle.foodName}>{food.name}</Text>
+                  <Text style={trackingStyle.foodCalories}>{food.calories} cal</Text>
+                </View>
+              ))
+            ) : (
+              <View style={trackingStyle.emptyMeal}>
+                <Text style={trackingStyle.emptyText}>No food added yet</Text>
+                <TouchableOpacity 
+                  style={trackingStyle.addButton}
+                  activeOpacity={0.7}
+                >
+                  <View style={trackingStyle.addButtonContent}>
+                    <Ionicons name="add" size={18} color="#E2F5EA" />
+                    <Text style={trackingStyle.addButtonText}>Add Food</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {item.items.length > 0 && (
+            <TouchableOpacity 
+              style={trackingStyle.addMoreButton}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="add" size={16} color="#4CD471" />
+              <Text style={trackingStyle.addMoreText}>Add More</Text>
+            </TouchableOpacity>
           )}
         </View>
-
-        {item.items.length > 0 && (
-          <TouchableOpacity style={trakingStyle.addMoreButton}>
-            <Ionicons name="add" size={16} color="#399AA8" />
-            <Text style={trakingStyle.addMoreText}>Add More</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      </Pressable>
     );
   };
 
@@ -139,88 +169,106 @@ function TrackingScreen() {
   });
 
   return (
-    <SafeAreaView style={trakingStyle.container}>
-      <StatusBar style="auto" />
+    <SafeAreaView style={trackingStyle.container}>
+      <StatusBar style="light" />
 
-      <View style={trakingStyle.header}>
-        <Text style={trakingStyle.headerTitle}>Track Your Day</Text>
+      <View style={trackingStyle.header}>
+        <Text style={trackingStyle.headerTitle}>Track Your Day</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={trakingStyle.dateNavigation}>
-          <TouchableOpacity>
-            <Ionicons name="chevron-back" size={24} color="#666666" />
+        <View style={trackingStyle.dateNavigation}>
+          <TouchableOpacity 
+            style={trackingStyle.dateButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chevron-back" size={24} color="#A3E2B8" />
           </TouchableOpacity>
-          <Text style={trakingStyle.dateText}>{formattedDate}</Text>
-          <TouchableOpacity>
-            <Ionicons name="chevron-forward" size={24} color="#666666" />
+          <Text style={trackingStyle.dateText}>{formattedDate}</Text>
+          <TouchableOpacity 
+            style={trackingStyle.dateButton}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="chevron-forward" size={24} color="#A3E2B8" />
           </TouchableOpacity>
         </View>
 
-        <View style={trakingStyle.summaryCard}>
-          <Text style={trakingStyle.summaryTitle}>Daily Summary</Text>
-          <View style={trakingStyle.macrosSummary}>
-            <View style={trakingStyle.macroItem}>
-              <Text style={trakingStyle.macroValue}>{PROGRESS_DATA.calories.consumed}</Text>
-              <Text style={trakingStyle.macroLabel}>Calories</Text>
-              <Text style={trakingStyle.macroGoal}>of {PROGRESS_DATA.calories.goal}</Text>
-            </View>
+        <View style={trackingStyle.summaryCard}>
+          <View style={trackingStyle.cardContent}>
+            <Text style={trackingStyle.summaryTitle}>Daily Summary</Text>
+            <View style={trackingStyle.macrosSummary}>
+              <View style={trackingStyle.macroItem}>
+                <Text style={trackingStyle.macroValue}>{PROGRESS_DATA.calories.consumed}</Text>
+                <Text style={trackingStyle.macroLabel}>Calories</Text>
+                <Text style={trackingStyle.macroGoal}>of {PROGRESS_DATA.calories.goal}</Text>
+              </View>
 
-            <View style={trakingStyle.macroDivider} />
+              <View style={trackingStyle.macroDivider} />
 
-            <View style={trakingStyle.macroItem}>
-              <Text style={trakingStyle.macroValue}>{PROGRESS_DATA.protein.consumed}g</Text>
-              <Text style={trakingStyle.macroLabel}>Protein</Text>
-              <Text style={trakingStyle.macroGoal}>of {PROGRESS_DATA.protein.goal}g</Text>
-            </View>
+              <View style={trackingStyle.macroItem}>
+                <Text style={trackingStyle.macroValue}>{PROGRESS_DATA.protein.consumed}g</Text>
+                <Text style={trackingStyle.macroLabel}>Protein</Text>
+                <Text style={trackingStyle.macroGoal}>of {PROGRESS_DATA.protein.goal}g</Text>
+              </View>
 
-            <View style={trakingStyle.macroDivider} />
+              <View style={trackingStyle.macroDivider} />
 
-            <View style={trakingStyle.macroItem}>
-              <Text style={trakingStyle.macroValue}>{PROGRESS_DATA.carbs.consumed}g</Text>
-              <Text style={trakingStyle.macroLabel}>Carbs</Text>
-              <Text style={trakingStyle.macroGoal}>of {PROGRESS_DATA.carbs.goal}g</Text>
-            </View>
+              <View style={trackingStyle.macroItem}>
+                <Text style={trackingStyle.macroValue}>{PROGRESS_DATA.carbs.consumed}g</Text>
+                <Text style={trackingStyle.macroLabel}>Carbs</Text>
+                <Text style={trackingStyle.macroGoal}>of {PROGRESS_DATA.carbs.goal}g</Text>
+              </View>
 
-            <View style={trakingStyle.macroDivider} />
+              <View style={trackingStyle.macroDivider} />
 
-            <View style={trakingStyle.macroItem}>
-              <Text style={trakingStyle.macroValue}>{PROGRESS_DATA.fat.consumed}g</Text>
-              <Text style={trakingStyle.macroLabel}>Fat</Text>
-              <Text style={trakingStyle.macroGoal}>of {PROGRESS_DATA.fat.goal}g</Text>
+              <View style={trackingStyle.macroItem}>
+                <Text style={trackingStyle.macroValue}>{PROGRESS_DATA.fat.consumed}g</Text>
+                <Text style={trackingStyle.macroLabel}>Fat</Text>
+                <Text style={trackingStyle.macroGoal}>of {PROGRESS_DATA.fat.goal}g</Text>
+              </View>
             </View>
           </View>
         </View>
 
-        <View style={trakingStyle.waterCard}>
-          <Text style={trakingStyle.waterTitle}>Water Intake</Text>
-          <View style={trakingStyle.waterTracker}>
-            <TouchableOpacity onPress={decreaseWater}>
-              <Ionicons name="remove-circle" size={24} color="#399AA8" />
-            </TouchableOpacity>
+        <View style={trackingStyle.waterCard}>
+          <View style={trackingStyle.cardContent}>
+            <Text style={trackingStyle.waterTitle}>Water Intake</Text>
+            <View style={trackingStyle.waterTracker}>
+              <TouchableOpacity 
+                onPress={decreaseWater}
+                style={trackingStyle.waterButton}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="remove-circle" size={24} color="#4CD471" />
+              </TouchableOpacity>
 
-            <View style={trakingStyle.waterGlasses}>
-              {[...Array(WATER_INTAKE.goal)].map((_, index) => (
-                <Ionicons
-                  key={index}
-                  name={index < waterIntake ? "water" : "water-outline"}
-                  size={24}
-                  color={index < waterIntake ? "#399AA8" : "#CCCCCC"}
-                />
-              ))}
+              <View style={trackingStyle.waterGlasses}>
+                {[...Array(WATER_INTAKE.goal)].map((_, index) => (
+                  <Ionicons
+                    key={index}
+                    name={index < waterIntake ? "water" : "water-outline"}
+                    size={24}
+                    color={index < waterIntake ? "#4CD471" : "#2A5439"}
+                  />
+                ))}
+              </View>
+
+              <TouchableOpacity 
+                onPress={increaseWater}
+                style={trackingStyle.waterButton}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="add-circle" size={24} color="#4CD471" />
+              </TouchableOpacity>
             </View>
-
-            <TouchableOpacity onPress={increaseWater}>
-              <Ionicons name="add-circle" size={24} color="#399AA8" />
-            </TouchableOpacity>
+            <Text style={trackingStyle.waterStatus}>
+              {waterIntake} of {WATER_INTAKE.goal} glasses
+            </Text>
           </View>
-          <Text style={trakingStyle.waterStatus}>
-            {waterIntake} of {WATER_INTAKE.goal} glasses
-          </Text>
         </View>
 
-        <View style={trakingStyle.mealsSection}>
-          <Text style={trakingStyle.sectionTitle}>Meals</Text>
+        <View style={trackingStyle.mealsSection}>
+          <Text style={trackingStyle.sectionTitle}>Meals</Text>
           <FlatList
             data={MEALS_DATA}
             renderItem={renderMealItem}
@@ -229,15 +277,18 @@ function TrackingScreen() {
           />
         </View>
 
-        <TouchableOpacity style={trakingStyle.addMealButton}>
-          <Ionicons name="add-circle" size={20} color="white" />
-          <Text style={trakingStyle.addMealButtonText}>Add Meal</Text>
+        <TouchableOpacity 
+          style={trackingStyle.addMealButton}
+          activeOpacity={0.8}
+        >
+          <View style={trackingStyle.addMealContent}>
+            <Ionicons name="add-circle" size={20} color="white" />
+            <Text style={trackingStyle.addMealButtonText}>Add Meal</Text>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-
 
 export default TrackingScreen;

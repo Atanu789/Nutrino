@@ -181,18 +181,4 @@ function DashboardScreen() {
 }
 
 
-            </Text>
-                  <Text style={{ fontSize: 14, color: theme.textSecondary }}>
-                    {alert.description}
-                  </Text>
-                </View>
-              </MotiView>
-            ))}
-          </View>
-        </Animated.View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
 export default DashboardScreen;
