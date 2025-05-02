@@ -4,13 +4,13 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { VictoryPie } from 'victory-native';
-import { useAppContext } from "../../context/AppContext"
+import { useAppContext } from "../../context/AppContext";
 
 import { dashboardStyles } from '../../styles/DashboardStyles';
+
 function DashboardScreen() {
   const { state } = useAppContext();
 
-  // Sample data for the dashboard
   const dailyCalories = {
     consumed: 1800,
     goal: 2400
@@ -116,7 +116,6 @@ function DashboardScreen() {
         {/* Macronutrients Breakdown */}
         <View style={dashboardStyles.macrosCard}>
           <Text style={dashboardStyles.sectionTitle}>Macros Breakdown</Text>
-
           <View style={dashboardStyles.macroContent}>
             {nutrientData.map((nutrient, index) => (
               <View key={index} style={dashboardStyles.macroItem}>
