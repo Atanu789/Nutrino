@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  clerkId       String         @unique
+  healthProfile HealthProfile?
+  badHabits     BadHabit[]
+  substanceUse  SubstanceUse[]
+  sleepPatterns SleepPattern[]
+  stressFactors StressSource[]
+}
+
+model HealthProfile {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
+  age               Int?
+  gender            String?
+  height            Float? // in cm
+  weight            Float? // in kg
+  activityLevel     String? // sedentary, lightly active, moderately active, very active, extremely active
+  medicalConditions String[] // e.g., diabetes, hypertension, etc.
+  allergies         String[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  pregnancyStatus   Boolean? // important for nutrition recommendations
+  breastfeeding     Boolean? // important for nutrition recommendations
+  recentSurgery     Boolean?
+  chronicPain       Boolean?
+  digestiveIssues   String[]
+}
+
+// Primary model for tracking bad habits
+model BadHabit {
+  id                  Int       @id @default(autoincrement())
+  userId              Int
+  user                User      @relation(fields: [userId], references: [id])
+  habitType           String // general classification: smoking, drinking, etc.
+  specificHabit       String // specific behavior: cigarettes, vaping, binge drinking, etc.
+  frequency           String // daily, weekly, occasionally, etc.
+  quantityPerOccasion Float? // amount consumed each time
+  unit                String? // units: cigarettes, drinks, hours, etc.
+  duration            Int? // how long they've had this habit (in months)
+  lastOccurrence      DateTime? // when they last engaged in this habit
+  triggerFactors      String[] // stress, social settings, boredom, etc.
+  attemptedQuitting   Boolean   @default(false)
+  quittingMethods     String[] // methods tried to quit
+  impactSelfRating    Int? // self-rated impact on health (1-10)
+  notes               String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+// Detailed substance use tracking
+model SubstanceUse {
+  id            Int    @id @default(autoincrement())
+  userId        Int
+  user          User   @relation(fields: [userId], references: [id])
+  substanceType String // alcohol, tobacco, cannabis, etc.
+
+  // Alcohol specific fields
+  alcoholType    String? // beer, wine, spirits
+  standardDrinks Float? // number of standard drinks
+
+  // Tobacco/Nicotine specific fields
+  nicotineType   String? // cigarettes, vaping, chewing tobacco
+  nicotineAmount Float? // number of cigarettes, etc.
+
+  // Cannabis specific fields
+  cannabisMethod    String? // smoking, edibles, vaping
+  cannabisFrequency String? // daily, weekly, etc.
+
+  // Caffeine specific fields
+  caffeineSource String? // coffee, tea, energy drinks
+  caffeineAmount Float? // in mg or cups
+
+  // Common fields
+  useFrequency       String // daily, weekly, monthly, etc.
+  quantityPerWeek    Float? // average weekly consumption
+  useContext         String[] // social, alone, stress relief
+  useImpact          String[] // sleep issues, mood changes, etc.
+  lastUsed           DateTime? // when they last used
+  attemptingToReduce Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// Sleep pattern tracking
+model SleepPattern {
+  id                  Int      @id @default(autoincrement())
+  userId              Int
+  user                User     @relation(fields: [userId], references: [id])
+  averageHours        Float? // average hours of sleep per night
+  sleepQuality        String? // poor, fair, good, excellent
+  bedTime             String? // typical time going to bed
+  wakeTime            String? // typical time waking up
+  sleepIssues         String[] // insomnia, sleep apnea, restless sleep
+  useSleepAids        Boolean  @default(false)
+  sleepAidTypes       String[] // medications, melatonin, etc.
+  screenTimeBeforeBed Int? // minutes of screen time before bed
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// Stress factors
+model StressSource {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  stressType       String // work, financial, relationships, health
+  stressLevel      Int // 1-10 scale
+  copingMechanisms String[] // exercise, meditation, comfort eating
+  stressFrequency  String // constant, daily, weekly, occasional
+  physicalSymptoms String[] // headaches, muscle tension, etc.
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// Additional models from the previous schema would be included here...
