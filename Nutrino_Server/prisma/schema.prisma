@@ -48,7 +48,6 @@ model User {
 
   healthProfile HealthProfile?
   badHabits     BadHabit[]
-  substanceUse  SubstanceUse[]
   sleepPatterns SleepPattern[]
   stressFactors StressSource[]
   mentalHealth  MentalHealth?
@@ -102,48 +101,12 @@ model BadHabit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  substanceUse   SubstanceUse? @relation(fields: [substanceUseId], references: [id])
-  substanceUseId Int?
-
-  @@index([userId])
-}
-
-model SubstanceUse {
-  id            Int    @id @default(autoincrement())
-  userId        Int
-  user          User   @relation(fields: [userId], references: [id])
-  substanceType String // alcohol, tobacco, cannabis, caffeine, etc.
-
-  alcoholType    String?
-  standardDrinks Float?
-
-  nicotineType   String?
-  nicotineAmount Float?
-
-  cannabisMethod    String?
-  cannabisFrequency String?
-
-  caffeineSource String?
-  caffeineAmount Float?
-
-  useFrequency       Frequency
-  quantityPerWeek    Float?
-  useContext         String[]
-  useImpact          String[]
-  lastUsed           DateTime?
-  attemptingToReduce Boolean   @default(false)
-
-  badHabits BadHabit[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   @@index([userId])
 }
 
 model SleepPattern {
   id                  Int           @id @default(autoincrement())
-  userId              Int
+  userId              Int           @unique
   user                User          @relation(fields: [userId], references: [id])
   averageHours        Float?
   sleepQuality        SleepQuality?

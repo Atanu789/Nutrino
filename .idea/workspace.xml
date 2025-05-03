@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6f8c59f4-3e80-4c8a-8874-948aefd67122" name="Changes" comment="" />
+    <list default="true" id="6f8c59f4-3e80-4c8a-8874-948aefd67122" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nutrino_Server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthstatus.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthstatus.route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/.env" beforeDir="false" afterPath="$PROJECT_DIR$/client/.env" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,7 +23,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Nutrino" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {
@@ -87,6 +92,7 @@
       <updated>1746166847699</updated>
       <workItem from="1746166848787" duration="654000" />
       <workItem from="1746167519693" duration="15698000" />
+      <workItem from="1746278389768" duration="1297000" />
     </task>
     <servers />
   </component>
@@ -99,7 +105,6 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/Nutrino_Client/src/features/auth/SignUpScreen.tsx</url>
           <line>266</line>
-          <properties lambdaOrdinal="-1" />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>
