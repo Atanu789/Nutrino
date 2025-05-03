@@ -1,17 +1,23 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import process from 'process';
-import dotenv from 'dotenv';
 
 import webhookUserCreateRoutes from './routes/auth.route.js';
 import healthProfileRoutes from './routes/healthstatus.route.js';
 const app = express();
 
-app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 dotenv.config();
-
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/v1/auth/webhook') {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1/auth",webhookUserCreateRoutes)
