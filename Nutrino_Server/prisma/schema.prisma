@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,122 +7,185 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ===== ENUMS =====
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ActivityLevel {
+  SEDENTARY
+  LIGHTLY_ACTIVE
+  MODERATELY_ACTIVE
+  VERY_ACTIVE
+  EXTREMELY_ACTIVE
+}
+
+enum SleepQuality {
+  POOR
+  FAIR
+  GOOD
+  EXCELLENT
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  OCCASIONALLY
+  MONTHLY
+  RARELY
+}
+
+// ===== MODELS =====
+
 model User {
-  id            Int            @id @default(autoincrement())
-  name          String
-  email         String         @unique
-  clerkId       String         @unique
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String @unique
+  clerkId String @unique
+
   healthProfile HealthProfile?
   badHabits     BadHabit[]
   substanceUse  SubstanceUse[]
   sleepPatterns SleepPattern[]
   stressFactors StressSource[]
+  mentalHealth  MentalHealth?
+
+  @@map("users")
 }
 
 model HealthProfile {
-  id                Int      @id @default(autoincrement())
-  userId            Int      @unique
-  user              User     @relation(fields: [userId], references: [id])
-  age               Int?
-  gender            String?
-  height            Float? // in cm
-  weight            Float? // in kg
-  activityLevel     String? // sedentary, lightly active, moderately active, very active, extremely active
-  medicalConditions String[] // e.g., diabetes, hypertension, etc.
-  allergies         String[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  pregnancyStatus   Boolean? // important for nutrition recommendations
-  breastfeeding     Boolean? // important for nutrition recommendations
-  recentSurgery     Boolean?
-  chronicPain       Boolean?
-  digestiveIssues   String[]
+  id                 Int            @id @default(autoincrement())
+  userId             Int            @unique
+  user               User           @relation(fields: [userId], references: [id])
+  age                Int?
+  gender             Gender?
+  height             Float? // in cm
+  weight             Float? // in kg
+  activityLevel      ActivityLevel?
+  medicalConditions  String[]
+  allergies          String[]
+  dietaryPreferences String[]
+  foodAllergies      String[]
+  mealFrequency      String?
+  waterIntake        Float? // in liters/day
+
+  pregnancyStatus Boolean?
+  breastfeeding   Boolean?
+  recentSurgery   Boolean?
+  chronicPain     Boolean?
+  digestiveIssues String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// Primary model for tracking bad habits
 model BadHabit {
   id                  Int       @id @default(autoincrement())
   userId              Int
   user                User      @relation(fields: [userId], references: [id])
-  habitType           String // general classification: smoking, drinking, etc.
-  specificHabit       String // specific behavior: cigarettes, vaping, binge drinking, etc.
-  frequency           String // daily, weekly, occasionally, etc.
-  quantityPerOccasion Float? // amount consumed each time
-  unit                String? // units: cigarettes, drinks, hours, etc.
-  duration            Int? // how long they've had this habit (in months)
-  lastOccurrence      DateTime? // when they last engaged in this habit
-  triggerFactors      String[] // stress, social settings, boredom, etc.
+  habitType           String
+  specificHabit       String
+  frequency           Frequency
+  quantityPerOccasion Float?
+  unit                String?
+  duration            Int? // months
+  lastOccurrence      DateTime?
+  triggerFactors      String[]
   attemptedQuitting   Boolean   @default(false)
-  quittingMethods     String[] // methods tried to quit
-  impactSelfRating    Int? // self-rated impact on health (1-10)
+  quittingMethods     String[]
+  impactSelfRating    Int? // 1-10
   notes               String?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  substanceUse   SubstanceUse? @relation(fields: [substanceUseId], references: [id])
+  substanceUseId Int?
+
+  @@index([userId])
 }
 
-// Detailed substance use tracking
 model SubstanceUse {
   id            Int    @id @default(autoincrement())
   userId        Int
   user          User   @relation(fields: [userId], references: [id])
-  substanceType String // alcohol, tobacco, cannabis, etc.
+  substanceType String // alcohol, tobacco, cannabis, caffeine, etc.
 
-  // Alcohol specific fields
-  alcoholType    String? // beer, wine, spirits
-  standardDrinks Float? // number of standard drinks
+  alcoholType    String?
+  standardDrinks Float?
 
-  // Tobacco/Nicotine specific fields
-  nicotineType   String? // cigarettes, vaping, chewing tobacco
-  nicotineAmount Float? // number of cigarettes, etc.
+  nicotineType   String?
+  nicotineAmount Float?
 
-  // Cannabis specific fields
-  cannabisMethod    String? // smoking, edibles, vaping
-  cannabisFrequency String? // daily, weekly, etc.
+  cannabisMethod    String?
+  cannabisFrequency String?
 
-  // Caffeine specific fields
-  caffeineSource String? // coffee, tea, energy drinks
-  caffeineAmount Float? // in mg or cups
+  caffeineSource String?
+  caffeineAmount Float?
 
-  // Common fields
-  useFrequency       String // daily, weekly, monthly, etc.
-  quantityPerWeek    Float? // average weekly consumption
-  useContext         String[] // social, alone, stress relief
-  useImpact          String[] // sleep issues, mood changes, etc.
-  lastUsed           DateTime? // when they last used
+  useFrequency       Frequency
+  quantityPerWeek    Float?
+  useContext         String[]
+  useImpact          String[]
+  lastUsed           DateTime?
   attemptingToReduce Boolean   @default(false)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+
+  badHabits BadHabit[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
-// Sleep pattern tracking
 model SleepPattern {
-  id                  Int      @id @default(autoincrement())
+  id                  Int           @id @default(autoincrement())
   userId              Int
-  user                User     @relation(fields: [userId], references: [id])
-  averageHours        Float? // average hours of sleep per night
-  sleepQuality        String? // poor, fair, good, excellent
-  bedTime             String? // typical time going to bed
-  wakeTime            String? // typical time waking up
-  sleepIssues         String[] // insomnia, sleep apnea, restless sleep
-  useSleepAids        Boolean  @default(false)
-  sleepAidTypes       String[] // medications, melatonin, etc.
-  screenTimeBeforeBed Int? // minutes of screen time before bed
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  user                User          @relation(fields: [userId], references: [id])
+  averageHours        Float?
+  sleepQuality        SleepQuality?
+  bedTime             String?
+  wakeTime            String?
+  sleepIssues         String[]
+  useSleepAids        Boolean       @default(false)
+  sleepAidTypes       String[]
+  screenTimeBeforeBed Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
-// Stress factors
 model StressSource {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   userId           Int
-  user             User     @relation(fields: [userId], references: [id])
-  stressType       String // work, financial, relationships, health
-  stressLevel      Int // 1-10 scale
-  copingMechanisms String[] // exercise, meditation, comfort eating
-  stressFrequency  String // constant, daily, weekly, occasional
-  physicalSymptoms String[] // headaches, muscle tension, etc.
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  user             User      @relation(fields: [userId], references: [id])
+  stressType       String
+  stressLevel      Int // 1-10
+  copingMechanisms String[]
+  stressFrequency  Frequency
+  physicalSymptoms String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
-// Additional models from the previous schema would be included here...
+model MentalHealth {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  user            User      @relation(fields: [userId], references: [id])
+  moodPatterns    String[]
+  diagnosedIssues String[]
+  therapyHistory  String?
+  medication      String[]
+  lastEvaluation  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
