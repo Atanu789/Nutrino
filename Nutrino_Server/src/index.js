@@ -2,8 +2,8 @@ import express from 'express';
 import process from 'process';
 import dotenv from 'dotenv';
 
-import authRoutes from './routes/auth.route.ts.js';
-
+import webhookUserCreateRoutes from './routes/auth.route.js';
+import healthProfileRoutes from './routes/healthstatus.route.js';
 const app = express();
 
 app.use(express.json());
@@ -14,8 +14,8 @@ dotenv.config();
 
 const PORT = process.env.PORT || 3000;
 
-app.use("/api/v1/auth",authRoutes)
-
+app.use("/api/v1/auth",webhookUserCreateRoutes)
+app.use("/api/v1/healthstatus",healthProfileRoutes)
 
 
 
