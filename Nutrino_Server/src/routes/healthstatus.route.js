@@ -424,7 +424,7 @@ router.post('/sleeppattern', async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: id ? 'Sleep pattern updated successfully' : 'Sleep pattern created successfully',
+            message:  'Sleep pattern updated successfully',
             data: sleepPattern
         });
     } catch (error) {
