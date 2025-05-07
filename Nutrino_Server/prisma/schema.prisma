@@ -51,8 +51,8 @@ model User {
   sleepPatterns SleepPattern[]
   stressFactors StressSource[]
   mentalHealth  MentalHealth?
-
-  @@map("users")
+  HealthReport  HealthReport?
+  mealPlan      MealPlan?
 }
 
 model HealthProfile {
@@ -152,3 +152,148 @@ model MentalHealth {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// Add this model to your existing schema.prisma file
+
+model HealthReport {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  // Health Assessment Summary
+  strengths           String[]
+  areasForImprovement String[]
+
+  // Health Recommendations
+  smokingCessation       Json? // For smoking-related recommendations
+  hypertensionManagement Json? // For hypertension management recommendations
+  asthmaManagement       Json? // For asthma management recommendations
+  stressManagement       Json? // For stress management recommendations
+  digestiveHealth        Json? // For digestive health recommendations
+  sleepRecommendations   Json? // For sleep-related recommendations
+
+  // Risk Analysis
+  healthRisks Json[] // Array of health risks with descriptions
+
+  // Medical Condition Management
+  medicalAdvice Json[] // Array of medical conditions with advice
+
+  // Lifestyle Modifications
+  lifestyleModifications Json[] // Array of lifestyle modification recommendations
+
+  // Original report text (for reference)
+  originalReportText String // The full text report from Gemini
+
+  // Metadata
+  generatedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Add these models to your existing schema.prisma file
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+model MealPlan {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  // Meal plan metadata
+  startDate     DateTime
+  endDate       DateTime
+  calorieTarget Int?
+  proteinTarget Int? // in grams
+  carbTarget    Int? // in grams
+  fatTarget     Int? // in grams
+
+  // Nutritional goals based on health profile
+  nutritionalGoals Json[] // Array of nutritional goals
+
+  // Dietary restrictions
+  restrictions String[]
+
+  // Daily meal plans
+  dailyPlans DailyMealPlan[]
+
+  // Generated AI recommendations
+  aiRecommendations Json // General recommendations for the meal plan
+
+  // Original meal plan text (for reference)
+  originalPlanText String // The full text plan from Gemini
+
+  // Metadata
+  generatedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model DailyMealPlan {
+  id         Int      @id @default(autoincrement())
+  mealPlanId Int
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+
+  day     Int // Day number in the plan (1, 2, 3, etc.)
+  dayName String? // Optional name (e.g., "Monday")
+
+  // Daily nutritional totals
+  totalCalories Int?
+  totalProtein  Int? // in grams
+  totalCarbs    Int? // in grams
+  totalFat      Int? // in grams
+
+  // Meals for the day
+  meals Meal[]
+
+  // Hydration recommendation
+  waterIntake Int? // in milliliters
+
+  // Additional notes
+  notes String?
+
+  @@unique([mealPlanId, day])
+  @@index([mealPlanId])
+}
+
+model Meal {
+  id          Int           @id @default(autoincrement())
+  dailyPlanId Int
+  dailyPlan   DailyMealPlan @relation(fields: [dailyPlanId], references: [id], onDelete: Cascade)
+
+  mealType    MealType
+  name        String
+  description String?
+
+  // Nutritional information
+  calories Int?
+  protein  Int? // in grams
+  carbs    Int? // in grams
+  fat      Int? // in grams
+
+  // Recipe details
+  ingredients      String[]
+  preparationSteps String[]
+  preparationTime  Int? // in minutes
+
+  // Health benefits
+  healthBenefits String[]
+
+  // Image URL (if any)
+  imageUrl String?
+
+  @@index([dailyPlanId])
+}
+
+// Update the User model to include the relation
+// Add this to your existing User model
+// model User {
+//   ...existing fields
+//   mealPlan       MealPlan?
+// }

@@ -1,9 +1,10 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import process from 'process';
-
 import webhookUserCreateRoutes from './routes/auth.route.js';
+import healthFeedback from './routes/healthFeedback.route.js';
 import healthProfileRoutes from './routes/healthstatus.route.js';
+import mealPlanning from './routes/mealPlanning.route.js';
 const app = express();
 
 
@@ -22,8 +23,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use("/api/v1/auth",webhookUserCreateRoutes)
 app.use("/api/v1/healthstatus",healthProfileRoutes)
-
-
+app.use("/api/v1/feedback",healthFeedback)
+app.use("/api/v1/user",mealPlanning)
 
 
 
