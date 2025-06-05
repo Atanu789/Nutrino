@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Switch,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,279 +17,261 @@ import HorizontalScrollRadioButtonInput from "@/components/Forms/HorizontalRadio
 import MultiSelectInput from "@/components/Forms/MultiSelectInput";
 import RadioButtonInput from "@/components/Forms/RadioButtonInput";
 import TextInput from "@/components/Forms/TextInput";
+import NumberInput from "@/components/Forms/NumberInput";
 
-const CompleteYourAccountScreen = () => {
+const HealthProfileScreen = () => {
   const { user, isLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
-  const { control, handleSubmit, setError, setValue } = useForm({
+  const { control, handleSubmit, setError, setValue, watch } = useForm({
     defaultValues: {
+      // Basic Info
       full_name: "",
-      username: "",
+      date_of_birth: "",
       gender: "",
-      motherToung: "",
-      englishLevel: "",
-      learningGoal: "",
-      interests: "",
-      focus: "",
-      voice: "",
-      // New fields
-      occupation: "",
-      studyTime: "",
-      preferredTopics: [],
-      challengeAreas: [],
-      learningStyle: "",
-      practiceFrequency: "",
-      vocabularyLevel: "",
-      grammarKnowledge: "",
-      previousExperience: "",
-      preferredContentType: [],
+      contact_number: "",
+      emergency_contact: "",
+      
+      // Physical Attributes
+      height: "",
+      weight: "",
+      blood_type: "",
+      body_fat_percentage: "",
+      
+      // Medical History
+      allergies: [],
+      medications: [],
+      chronic_conditions: [],
+      surgeries: [],
+      family_history: [],
+      
+      // Lifestyle
+      activity_level: "",
+      exercise_frequency: "",
+      exercise_type: [],
+      sleep_quality: "",
+      sleep_hours: "",
+      stress_level: "",
+      smoking_status: "",
+      alcohol_consumption: "",
+      
+      // Dietary Preferences
+      dietary_restrictions: [],
+      food_allergies: [],
+      preferred_cuisines: [],
+      disliked_foods: [],
+      eating_habits: "",
+      water_intake: "",
+      
+      // Nutrition Goals
+      primary_goal: "",
+      weight_goal: "",
+      target_calories: "",
+      macro_preferences: "",
+      meal_preparation_time: "",
+      
+      // Health Metrics
+      blood_pressure: "",
+      cholesterol: "",
+      blood_sugar: "",
+      recent_lab_results: "",
+      
+      // Special Considerations
+      pregnancy_status: false,
+      breastfeeding: false,
+      digestive_issues: [],
+      food_intolerances: [],
+      
+      // Tracking Preferences
+      tracking_method: "",
+      wearable_device: "",
+      health_apps: [],
     },
   });
 
-  const onSubmit = async (data) => {
-    const {
-      full_name,
-      username,
-      gender,
-      motherToung,
-      englishLevel,
-      learningGoal,
-      interests,
-      focus,
-      voice,
-      // New fields
-      occupation,
-      studyTime,
-      preferredTopics,
-      challengeAreas,
-      learningStyle,
-      practiceFrequency,
-      vocabularyLevel,
-      grammarKnowledge,
-      previousExperience,
-      preferredContentType,
-    } = data;
+  const pregnancyStatus = watch("pregnancy_status");
 
+  const onSubmit = async (data) => {
     try {
       setIsLoading(true);
 
-      // Properly handle full name splitting
-      const nameParts = full_name.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
-
-      // Update Clerk user profile with all fields in unsafeMetadata
+      // Update Clerk user profile with health data
       await user?.update({
-        username: username,
-        firstName: firstName,
-        lastName: lastName,
         unsafeMetadata: {
-          gender,
-          motherToung,
-          englishLevel,
-          learningGoal,
-          interests,
-          focus,
-          voice,
-          // New fields
-          occupation,
-          studyTime,
-          preferredTopics,
-          challengeAreas,
-          learningStyle,
-          practiceFrequency,
-          vocabularyLevel,
-          grammarKnowledge,
-          previousExperience,
-          preferredContentType,
-          onboarding_completed: true,
+          health_profile: data,
+          health_onboarding_completed: true,
         },
       });
 
       await user?.reload();
 
-      // Create or update user in your database
+      // Create or update health profile in your database
       const email = user?.primaryEmailAddress?.emailAddress;
       if (email) {
-        const response = await fetch("https://ai-english-tutor-9ixt.onrender.com/api/auth/create", {
+        const response = await fetch("https://your-api-endpoint.com/api/health/profile", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             email,
-            full_name,
-            motherToung,
-            englishLevel,
-            learningGoal,
-            interests,
-            focus,
-            voice,
-            // New fields
-            occupation,
-            studyTime,
-            preferredTopics,
-            challengeAreas,
-            learningStyle,
-            practiceFrequency,
-            vocabularyLevel,
-            grammarKnowledge,
-            previousExperience,
-            preferredContentType,
+            ...data
           }),
         });
 
         if (!response.ok) {
-          throw new Error("Failed to update user profile in database");
+          throw new Error("Failed to update health profile");
         }
       }
 
-      return router.push("/(tabs)");
+      return router.push("/(health-tabs)");
     } catch (error) {
-      console.error("Error updating profile:", error);
-
-      if (error.message === "That username is taken. Please try another.") {
-        return setError("username", { message: "Username is already taken" });
-      }
-
-      return setError("full_name", { message: "An error occurred while updating profile" });
+      console.error("Error updating health profile:", error);
+      setError("root", { message: "An error occurred while saving your profile" });
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!isLoaded || !user) {
-      return;
-    }
+    if (!isLoaded || !user) return;
 
     setValue("full_name", user?.fullName || "");
-    setValue("username", user?.username || "");
-    setValue("gender", String(user?.unsafeMetadata?.gender) || "");
-    const metadata = user?.unsafeMetadata;
-    console.log(metadata);
+    
+    const metadata = user?.unsafeMetadata?.health_profile;
     if (metadata) {
-      setValue("motherToung", metadata.motherToung || "");
-      setValue("englishLevel", metadata.englishLevel || "");
-      setValue("learningGoal", metadata.learningGoal || "");
-      setValue("interests", metadata.interests || "");
-      setValue("focus", metadata.focus || "");
-      setValue("voice", metadata.voice || "");
-      // New fields
-      setValue("occupation", metadata.occupation || "");
-      setValue("studyTime", metadata.studyTime || "");
-      setValue("preferredTopics", metadata.preferredTopics || []);
-      setValue("challengeAreas", metadata.challengeAreas || []);
-      setValue("learningStyle", metadata.learningStyle || "");
-      setValue("practiceFrequency", metadata.practiceFrequency || "");
-      setValue("vocabularyLevel", metadata.vocabularyLevel || "");
-      setValue("grammarKnowledge", metadata.grammarKnowledge || "");
-      setValue("previousExperience", metadata.previousExperience || "");
-      setValue("preferredContentType", metadata.preferredContentType || []);
+      Object.keys(metadata).forEach(key => {
+        setValue(key, metadata[key]);
+      });
     }
   }, [isLoaded, user]);
 
-  const englishLevels = [
-    { label: "Beginner", value: "beginner" },
-    { label: "Intermediate", value: "intermediate" },
-    { label: "Advanced", value: "advanced" },
-  ];
-
-  const focusOptions = [
-    { label: "Speaking", value: "speaking" },
-    { label: "Listening", value: "listening" },
-    { label: "Reading", value: "reading" },
-    { label: "Writing", value: "writing" },
-  ];
-
-  const voiceOptions = [
+  // Option arrays for various fields
+  const genderOptions = [
     { label: "Male", value: "male" },
     { label: "Female", value: "female" },
+    { label: "Other", value: "other" },
+    { label: "Prefer not to say", value: "undisclosed" },
   ];
 
-  // New option arrays for the additional fields
-  const studyTimeOptions = [
-    { label: "Less than 15 minutes/day", value: "under15" },
-    { label: "15-30 minutes/day", value: "15to30" },
-    { label: "30-60 minutes/day", value: "30to60" },
-    { label: "1+ hours/day", value: "over60" },
+  const bloodTypeOptions = [
+    { label: "A+", value: "a_positive" },
+    { label: "A-", value: "a_negative" },
+    { label: "B+", value: "b_positive" },
+    { label: "B-", value: "b_negative" },
+    { label: "AB+", value: "ab_positive" },
+    { label: "AB-", value: "ab_negative" },
+    { label: "O+", value: "o_positive" },
+    { label: "O-", value: "o_negative" },
+    { label: "Don't know", value: "unknown" },
   ];
 
-  const topicOptions = [
-    { label: "Business", value: "business" },
-    { label: "Travel", value: "travel" },
-    { label: "Academic", value: "academic" },
-    { label: "Daily Conversation", value: "conversation" },
-    { label: "Culture & Entertainment", value: "culture" },
-    { label: "Technology", value: "technology" },
-    { label: "Health & Medicine", value: "health" },
-    { label: "Science", value: "science" },
+  const allergyOptions = [
+    { label: "Peanuts", value: "peanuts" },
+    { label: "Tree nuts", value: "tree_nuts" },
+    { label: "Shellfish", value: "shellfish" },
+    { label: "Fish", value: "fish" },
+    { label: "Eggs", value: "eggs" },
+    { label: "Milk", value: "milk" },
+    { label: "Soy", value: "soy" },
+    { label: "Wheat", value: "wheat" },
+    { label: "Sesame", value: "sesame" },
+    { label: "Latex", value: "latex" },
+    { label: "Pollen", value: "pollen" },
+    { label: "Dust mites", value: "dust_mites" },
+    { label: "Pet dander", value: "pet_dander" },
+    { label: "Mold", value: "mold" },
+    { label: "Insect stings", value: "insect_stings" },
+    { label: "Penicillin", value: "penicillin" },
   ];
 
-  const challengeOptions = [
-    { label: "Pronunciation", value: "pronunciation" },
-    { label: "Grammar", value: "grammar" },
-    { label: "Vocabulary", value: "vocabulary" },
-    { label: "Listening Comprehension", value: "listening" },
-    { label: "Speaking Fluency", value: "speaking" },
-    { label: "Writing Skills", value: "writing" },
-    { label: "Reading Comprehension", value: "reading" },
-    { label: "Idioms & Expressions", value: "idioms" },
+  const conditionOptions = [
+    { label: "Diabetes", value: "diabetes" },
+    { label: "Hypertension", value: "hypertension" },
+    { label: "Heart disease", value: "heart_disease" },
+    { label: "High cholesterol", value: "high_cholesterol" },
+    { label: "Asthma", value: "asthma" },
+    { label: "Arthritis", value: "arthritis" },
+    { label: "Thyroid disorder", value: "thyroid" },
+    { label: "Autoimmune disease", value: "autoimmune" },
+    { label: "Depression/Anxiety", value: "mood_disorder" },
+    { label: "Osteoporosis", value: "osteoporosis" },
+    { label: "Cancer", value: "cancer" },
+    { label: "Kidney disease", value: "kidney_disease" },
+    { label: "Liver disease", value: "liver_disease" },
+    { label: "PCOS", value: "pcos" },
+    { label: "Endometriosis", value: "endometriosis" },
   ];
 
-  const learningStyleOptions = [
-    { label: "Visual", value: "visual" },
-    { label: "Auditory", value: "auditory" },
-    { label: "Reading/Writing", value: "readwrite" },
-    { label: "Kinesthetic", value: "kinesthetic" },
+  const activityLevelOptions = [
+    { label: "Sedentary", value: "sedentary" },
+    { label: "Lightly active", value: "light" },
+    { label: "Moderately active", value: "moderate" },
+    { label: "Very active", value: "very_active" },
+    { label: "Extremely active", value: "extreme" },
   ];
 
-  const practiceFrequencyOptions = [
-    { label: "Daily", value: "daily" },
-    { label: "Several times a week", value: "multiple" },
-    { label: "Once a week", value: "weekly" },
-    { label: "Less often", value: "occasional" },
+  const exerciseFrequencyOptions = [
+    { label: "Never", value: "never" },
+    { label: "1-2 times/week", value: "1-2" },
+    { label: "3-4 times/week", value: "3-4" },
+    { label: "5+ times/week", value: "5+" },
   ];
 
-  const vocabularyLevelOptions = [
-    { label: "Basic (under 1000 words)", value: "basic" },
-    { label: "Elementary (1000-2000 words)", value: "elementary" },
-    { label: "Intermediate (2000-5000 words)", value: "intermediate" },
-    { label: "Advanced (5000+ words)", value: "advanced" },
+  const exerciseTypeOptions = [
+    { label: "Walking", value: "walking" },
+    { label: "Running", value: "running" },
+    { label: "Cycling", value: "cycling" },
+    { label: "Swimming", value: "swimming" },
+    { label: "Weight training", value: "weights" },
+    { label: "Yoga", value: "yoga" },
+    { label: "Pilates", value: "pilates" },
+    { label: "HIIT", value: "hiit" },
+    { label: "Team sports", value: "team_sports" },
+    { label: "Dancing", value: "dancing" },
   ];
 
-  const grammarKnowledgeOptions = [
-    { label: "Basic tenses only", value: "basic" },
-    { label: "Familiar with most tenses", value: "intermediate" },
-    { label: "Confident with complex structures", value: "advanced" },
-    { label: "Not sure", value: "unknown" },
+  const sleepQualityOptions = [
+    { label: "Excellent", value: "excellent" },
+    { label: "Good", value: "good" },
+    { label: "Fair", value: "fair" },
+    { label: "Poor", value: "poor" },
+    { label: "Very poor", value: "very_poor" },
   ];
 
-  const experienceOptions = [
-    { label: "Self-study only", value: "self" },
-    { label: "Some classes/tutoring", value: "some" },
-    { label: "Formal education", value: "formal" },
-    { label: "Lived in English-speaking country", value: "immersion" },
-    { label: "No previous experience", value: "none" },
+  const stressLevelOptions = [
+    { label: "Very low", value: "very_low" },
+    { label: "Low", value: "low" },
+    { label: "Moderate", value: "moderate" },
+    { label: "High", value: "high" },
+    { label: "Very high", value: "very_high" },
   ];
 
-  const contentTypeOptions = [
-    { label: "Articles & Blog Posts", value: "articles" },
-    { label: "Videos", value: "videos" },
-    { label: "Podcasts & Audio", value: "audio" },
-    { label: "Interactive Exercises", value: "interactive" },
-    { label: "Games", value: "games" },
-    { label: "Conversations with AI", value: "ai" },
+  const dietaryRestrictionOptions = [
+    { label: "Vegetarian", value: "vegetarian" },
+    { label: "Vegan", value: "vegan" },
+    { label: "Pescatarian", value: "pescatarian" },
+    { label: "Gluten-free", value: "gluten_free" },
+    { label: "Dairy-free", value: "dairy_free" },
+    { label: "Kosher", value: "kosher" },
+    { label: "Halal", value: "halal" },
+    { label: "Low-carb", value: "low_carb" },
+    { label: "Keto", value: "keto" },
+    { label: "Paleo", value: "paleo" },
+    { label: "Low-FODMAP", value: "low_fodmap" },
   ];
 
-  const accentPreferenceOptions = [
-    { label: "American", value: "american" },
-    { label: "British", value: "british" },
-    { label: "Australian", value: "australian" },
-    { label: "No preference", value: "none" },
+  const primaryGoalOptions = [
+    { label: "Weight loss", value: "weight_loss" },
+    { label: "Weight gain", value: "weight_gain" },
+    { label: "Maintenance", value: "maintenance" },
+    { label: "Muscle building", value: "muscle_building" },
+    { label: "Improved energy", value: "energy" },
+    { label: "Better digestion", value: "digestion" },
+    { label: "Disease management", value: "disease_management" },
+    { label: "Sports performance", value: "sports_performance" },
   ];
 
   return (
@@ -296,26 +279,25 @@ const CompleteYourAccountScreen = () => {
       <View
         style={[
           styles.container,
-          { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 20 },
+          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 },
         ]}
       >
         <View style={styles.headingContainer}>
-          <Text style={styles.label}>Complete your account</Text>
+          <Text style={styles.label}>Health & Nutrition Profile</Text>
           <Text style={styles.description}>
-            Complete your account to start your language learning journey with thousands of
-            learners around the world. The more information you provide, the better we can
-            personalize your learning experience.
+            Complete your profile to get personalized meal plans, nutrition advice, 
+            and health tracking. Your information helps us create the best experience for you.
           </Text>
         </View>
 
         <View style={styles.formContainer}>
-          {/* Basic Info Section */}
+          {/* Basic Information Section */}
           <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Basic Information</Text>
 
             <TextInput
               control={control}
-              placeholder="Enter your full name"
+              placeholder="Full name"
               label="Full Name"
               required
               name="full_name"
@@ -323,151 +305,358 @@ const CompleteYourAccountScreen = () => {
 
             <TextInput
               control={control}
-              placeholder="Enter your username"
-              label="Username"
+              placeholder="MM/DD/YYYY"
+              label="Date of Birth"
               required
-              name="username"
+              name="date_of_birth"
             />
 
             <RadioButtonInput
               control={control}
-              placeholder="Select your gender"
               label="Gender"
               required
               name="gender"
-              options={[
-                { label: "Male", value: "male" },
-                { label: "Female", value: "female" },
-                { label: "Other", value: "other" },
-              ]}
+              options={genderOptions}
             />
 
             <TextInput
               control={control}
-              placeholder="Enter your native language"
-              label="Native Language"
-              required
-              name="motherToung"
+              placeholder="Phone number"
+              label="Contact Number"
+              name="contact_number"
+              keyboardType="phone-pad"
             />
 
             <TextInput
               control={control}
-              placeholder="What is your occupation?"
-              label="Occupation"
-              name="occupation"
+              placeholder="Name and phone"
+              label="Emergency Contact"
+              name="emergency_contact"
             />
           </View>
 
-          {/* Language Proficiency Section */}
+          {/* Physical Attributes Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Language Proficiency</Text>
+            <Text style={styles.sectionTitle}>Physical Attributes</Text>
+
+            <View style={styles.row}>
+              <View style={[styles.halfInput, { marginRight: 10 }]}>
+                <NumberInput
+                  control={control}
+                  placeholder="cm"
+                  label="Height"
+                  required
+                  name="height"
+                  unit="cm"
+                />
+              </View>
+              <View style={styles.halfInput}>
+                <NumberInput
+                  control={control}
+                  placeholder="kg"
+                  label="Weight"
+                  required
+                  name="weight"
+                  unit="kg"
+                />
+              </View>
+            </View>
+
+            <NumberInput
+              control={control}
+              placeholder="%"
+              label="Body Fat Percentage (optional)"
+              name="body_fat_percentage"
+              unit="%"
+            />
 
             <RadioButtonInput
               control={control}
-              placeholder="Select your English level"
-              label="English Level"
-              required
-              name="englishLevel"
-              options={englishLevels}
-            />
-
-            {/* Changed to horizontal scroll */}
-            <HorizontalScrollRadioButtonInput
-              control={control}
-              placeholder="Select your vocabulary level"
-              label="Vocabulary Level"
-              name="vocabularyLevel"
-              options={vocabularyLevelOptions}
-            />
-
-            {/* Changed to horizontal scroll */}
-
-            {/* Changed to horizontal scroll */}
-            <HorizontalScrollRadioButtonInput
-              control={control}
-              placeholder="Previous English learning experience"
-              label="Previous Experience"
-              name="previousExperience"
-              options={experienceOptions}
+              label="Blood Type"
+              name="blood_type"
+              options={bloodTypeOptions}
             />
           </View>
 
-          {/* Learning Preferences Section */}
+          {/* Medical History Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Learning Preferences</Text>
+            <Text style={styles.sectionTitle}>Medical History</Text>
+
+            <MultiSelectInput
+              control={control}
+              label="Allergies"
+              name="allergies"
+              options={allergyOptions}
+            />
 
             <TextInput
               control={control}
-              placeholder="What is your learning goal?"
-              label="Learning Goal"
-              required
-              name="learningGoal"
-            />
-
-            {/* Changed to horizontal scroll */}
-            <HorizontalScrollRadioButtonInput
-              control={control}
-              placeholder="Select your primary focus"
-              label="Learning Focus"
-              required
-              name="focus"
-              options={focusOptions}
+              placeholder="List current medications"
+              label="Current Medications"
+              name="medications"
+              multiline
             />
 
             <MultiSelectInput
               control={control}
-              placeholder="Select areas you find challenging"
-              label="Challenge Areas"
-              name="challengeAreas"
-              options={challengeOptions}
+              label="Chronic Conditions"
+              name="chronic_conditions"
+              options={conditionOptions}
             />
 
-
-
-            {/* Changed to horizontal scroll */}
-            <HorizontalScrollRadioButtonInput
+            <TextInput
               control={control}
-              placeholder="How often do you plan to practice?"
-              label="Practice Frequency"
-              name="practiceFrequency"
-              options={practiceFrequencyOptions}
+              placeholder="List any major surgeries"
+              label="Surgical History"
+              name="surgeries"
+              multiline
             />
 
-            {/* Changed to horizontal scroll */}
-            <HorizontalScrollRadioButtonInput
+            <TextInput
               control={control}
-              placeholder="How much time can you dedicate daily?"
-              label="Daily Study Time"
-              name="studyTime"
-              options={studyTimeOptions}
+              placeholder="Family medical history"
+              label="Family History"
+              name="family_history"
+              multiline
             />
           </View>
 
-          {/* Content Preferences Section */}
+          {/* Lifestyle Section */}
           <View style={styles.sectionContainer}>
-            <Text style={styles.sectionTitle}>Content Preferences</Text>
+            <Text style={styles.sectionTitle}>Lifestyle</Text>
+
+            <RadioButtonInput
+              control={control}
+              label="Activity Level"
+              required
+              name="activity_level"
+              options={activityLevelOptions}
+            />
+
+            <RadioButtonInput
+              control={control}
+              label="Exercise Frequency"
+              name="exercise_frequency"
+              options={exerciseFrequencyOptions}
+            />
+
+            <MultiSelectInput
+              control={control}
+              label="Exercise Types"
+              name="exercise_type"
+              options={exerciseTypeOptions}
+            />
+
+            <RadioButtonInput
+              control={control}
+              label="Sleep Quality"
+              name="sleep_quality"
+              options={sleepQualityOptions}
+            />
+
+            <NumberInput
+              control={control}
+              placeholder="hours/night"
+              label="Average Sleep Hours"
+              name="sleep_hours"
+              unit="hours"
+            />
+
+            <RadioButtonInput
+              control={control}
+              label="Stress Level"
+              name="stress_level"
+              options={stressLevelOptions}
+            />
+
+            <View style={styles.row}>
+              <View style={[styles.halfInput, { marginRight: 10 }]}>
+                <RadioButtonInput
+                  control={control}
+                  label="Smoking Status"
+                  name="smoking_status"
+                  options={[
+                    { label: "Non-smoker", value: "non_smoker" },
+                    { label: "Smoker", value: "smoker" },
+                    { label: "Former smoker", value: "former_smoker" },
+                  ]}
+                />
+              </View>
+              <View style={styles.halfInput}>
+                <RadioButtonInput
+                  control={control}
+                  label="Alcohol Consumption"
+                  name="alcohol_consumption"
+                  options={[
+                    { label: "None", value: "none" },
+                    { label: "Occasional", value: "occasional" },
+                    { label: "Regular", value: "regular" },
+                  ]}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Dietary Preferences Section */}
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Dietary Preferences</Text>
+
+            <MultiSelectInput
+              control={control}
+              label="Dietary Restrictions"
+              name="dietary_restrictions"
+              options={dietaryRestrictionOptions}
+            />
+
+            <MultiSelectInput
+              control={control}
+              label="Food Allergies"
+              name="food_allergies"
+              options={allergyOptions}
+            />
 
             <TextInput
               control={control}
-              placeholder="Enter your interests (comma separated)"
-              label="Interests"
-              name="interests"
+              placeholder="List disliked foods"
+              label="Disliked Foods"
+              name="disliked_foods"
+              multiline
             />
 
-            <MultiSelectInput
+            <RadioButtonInput
               control={control}
-              placeholder="Select topics you're interested in"
-              label="Preferred Topics"
-              name="preferredTopics"
-              options={topicOptions}
+              label="Eating Habits"
+              name="eating_habits"
+              options={[
+                { label: "Regular meals", value: "regular" },
+                { label: "Irregular meals", value: "irregular" },
+                { label: "Frequent snacking", value: "snacking" },
+                { label: "Intermittent fasting", value: "fasting" },
+              ]}
             />
 
-            <MultiSelectInput
+            <NumberInput
               control={control}
-              placeholder="Select content types you prefer"
-              label="Preferred Content Types"
-              name="preferredContentType"
-              options={contentTypeOptions}
+              placeholder="glasses/day"
+              label="Water Intake"
+              name="water_intake"
+              unit="glasses"
+            />
+          </View>
+
+          {/* Nutrition Goals Section */}
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Nutrition Goals</Text>
+
+            <RadioButtonInput
+              control={control}
+              label="Primary Goal"
+              required
+              name="primary_goal"
+              options={primaryGoalOptions}
+            />
+
+            <View style={styles.row}>
+              <View style={[styles.halfInput, { marginRight: 10 }]}>
+                <NumberInput
+                  control={control}
+                  placeholder="kg"
+                  label="Current Weight"
+                  name="weight"
+                  unit="kg"
+                />
+              </View>
+              <View style={styles.halfInput}>
+                <NumberInput
+                  control={control}
+                  placeholder="kg"
+                  label="Target Weight"
+                  name="weight_goal"
+                  unit="kg"
+                />
+              </View>
+            </View>
+
+            <NumberInput
+              control={control}
+              placeholder="calories/day"
+              label="Target Daily Calories"
+              name="target_calories"
+              unit="calories"
+            />
+
+            <RadioButtonInput
+              control={control}
+              label="Macronutrient Preferences"
+              name="macro_preferences"
+              options={[
+                { label: "Balanced", value: "balanced" },
+                { label: "High protein", value: "high_protein" },
+                { label: "Low carb", value: "low_carb" },
+                { label: "High carb", value: "high_carb" },
+                { label: "Flexible", value: "flexible" },
+              ]}
+            />
+
+            <RadioButtonInput
+              control={control}
+              label="Meal Preparation Time"
+              name="meal_preparation_time"
+              options={[
+                { label: "<15 min", value: "under15" },
+                { label: "15-30 min", value: "15to30" },
+                { label: "30-60 min", value: "30to60" },
+                { label: ">60 min", value: "over60" },
+              ]}
+            />
+          </View>
+
+          {/* Special Considerations Section */}
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Special Considerations</Text>
+
+            <View style={styles.switchContainer}>
+              <Text style={styles.switchLabel}>Currently Pregnant</Text>
+              <Switch
+                value={pregnancyStatus}
+                onValueChange={(value) => setValue("pregnancy_status", value)}
+              />
+            </View>
+
+            {pregnancyStatus && (
+              <>
+                <View style={styles.switchContainer}>
+                  <Text style={styles.switchLabel}>Breastfeeding</Text>
+                  <Switch
+                    value={watch("breastfeeding")}
+                    onValueChange={(value) => setValue("breastfeeding", value)}
+                  />
+                </View>
+
+                <NumberInput
+                  control={control}
+                  placeholder="weeks"
+                  label="Pregnancy Week"
+                  name="pregnancy_week"
+                  unit="weeks"
+                />
+              </>
+            )}
+
+            <TextInput
+              control={control}
+              placeholder="List any digestive issues"
+              label="Digestive Issues"
+              name="digestive_issues"
+              multiline
+            />
+
+            <TextInput
+              control={control}
+              placeholder="List food intolerances"
+              label="Food Intolerances"
+              name="food_intolerances"
+              multiline
             />
           </View>
 
@@ -481,7 +670,7 @@ const CompleteYourAccountScreen = () => {
                 <ActivityIndicator size="small" color="white" />
               ) : null}
               <Text style={styles.buttonText}>
-                {isLoading ? "Loading..." : "Complete Account"}
+                {isLoading ? "Saving..." : "Complete Profile"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -491,65 +680,88 @@ const CompleteYourAccountScreen = () => {
   );
 };
 
-export default CompleteYourAccountScreen;
+export default HealthProfileScreen;
 
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#f5f7fa",
   },
   container: {
     flex: 1,
-    backgroundColor: "white",
-    padding: 20,
-    gap: 20,
+    backgroundColor: "#f5f7fa",
+    padding: 15,
+    gap: 15,
   },
   headingContainer: {
     width: "100%",
-    gap: 5,
+    gap: 8,
+    marginBottom: 10,
   },
   label: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#2d3748",
   },
   description: {
-    fontSize: 16,
-    color: "gray",
+    fontSize: 15,
+    color: "#4a5568",
+    lineHeight: 22,
   },
   formContainer: {
     width: "100%",
-    marginTop: 20,
-    gap: 20,
+    gap: 15,
   },
   sectionContainer: {
     width: "100%",
-    backgroundColor: "#f9f9f9",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: "white",
+    padding: 18,
+    borderRadius: 12,
     gap: 15,
     marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#444",
+    color: "#2d3748",
+    marginBottom: 5,
   },
-  textIput: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "gray",
-    borderRadius: 5,
-    padding: 10,
-    width: "100%",
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  halfInput: {
+    width: "48%",
+  },
+  switchContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: "#4a5568",
   },
   button: {
     width: "100%",
-    backgroundColor: "blue",
-    padding: 15,
+    backgroundColor: "#4299e1",
+    padding: 16,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
     gap: 10,
+    shadowColor: "#4299e1",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttonText: {
     color: "white",
