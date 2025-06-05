@@ -39,13 +39,12 @@ const sendErrorResponse = (res, status, message, error = null) => {
   return res.status(status).json({ message, error: error?.message });
 };
 
-// Meal Plan Generation Endpoint with Improved User Health Analysis
+
 router.post('/mealplan/generate', async (req, res) => {
   try {
-    // Validate input with improved schema
+
     const { clerkId, duration = 7, forceRegenerate = false, cuisinePreferences = [], healthGoals = [] } = req.body;
 
-    // Get user details with comprehensive health information
     const userDetails = await prisma.user.findUnique({
       where: { clerkId },
       include: {
@@ -63,12 +62,11 @@ router.post('/mealplan/generate', async (req, res) => {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    // Check for recent meal plan - use forceRegenerate to override
+
     const hasRecentMealPlan = userDetails.mealPlan &&
       (new Date() - new Date(userDetails.mealPlan.generatedAt)) / (1000 * 60 * 60 * 24) < 14;
 
     if (hasRecentMealPlan && !forceRegenerate) {
-      // Enhanced formatting for existing meal plan
       const completeMealPlan = await prisma.mealPlan.findUnique({
         where: { userId: userDetails.id },
         include: {
@@ -2048,7 +2046,7 @@ function generateHealthBenefits(mealName, mealType, healthRecommendations = {}) 
 function formatMealPlanResponse(mealPlan, startDate, originalPlanObject) {
   return {
     id: mealPlan.id,
-    startDate: mealPlan.startDate,
+    startDate: mealPlan.startDate,// Meal Plan Generation Endpoint with Improved User Health Analysis
     endDate: mealPlan.endDate,
     calorieTarget: mealPlan.calorieTarget,
     proteinTarget: mealPlan.proteinTarget,
@@ -2094,7 +2092,7 @@ function formatMealPlanResponse(mealPlan, startDate, originalPlanObject) {
  * @returns {Array} - Structured health benefits
  */
 function extractHealthBenefits(rawBenefits, ingredients) {
-  // Initialize an empty array for structured benefits
+
   const structuredBenefits = [];
 
   // If no raw benefits provided, return default
@@ -2122,7 +2120,7 @@ function extractHealthBenefits(rawBenefits, ingredients) {
     // Skip if benefit is too long (likely copied text)
     if (benefit.length > 200) continue;
 
-    // Clean the benefit
+
     const cleanedBenefit = cleanBenefit(benefit);
     if (cleanedBenefit) {
       structuredBenefits.push(cleanedBenefit);
@@ -2187,58 +2185,58 @@ function extractHealthBenefits(rawBenefits, ingredients) {
   return structuredBenefits.slice(0, 5);
 }
 
-// /**
-//  * Simulate external search API call (replace with actual implementation in production)
-//  * @param {String} query - Search query
-//  * @param {Object} options - Search options
-//  * @returns {Promise<Object>} - Search results
-//  */
-// async function tavilySearch(query, options = {}) {
-//   console.log(`Searching for: ${query} with options:`, options);
+/**
+ * Simulate external search API call (replace with actual implementation in production)
+ * @param {String} query - Search query
+ * @param {Object} options - Search options
+ * @returns {Promise<Object>} - Search results
+ */
+async function tavilySearch(query, options = {}) {
+  console.log(`Searching for: ${query} with options:`, options);
 
-//   // This is a mock implementation, replace with actual API call
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       resolve({
-//         answer: `Recipe for ${query.split(' ').slice(2).join(' ')}.
+  // This is a mock implementation, replace with actual API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        answer: `Recipe for ${query.split(' ').slice(2).join(' ')}.
 
-//         Ingredients:
-//         - 4 oz protein
-//         - 1 cup vegetables
-//         - 1/2 cup grains
-//         - 1 tbsp healthy fats
-//         - Herbs and spices to taste
+        Ingredients:
+        - 4 oz protein
+        - 1 cup vegetables
+        - 1/2 cup grains
+        - 1 tbsp healthy fats
+        - Herbs and spices to taste
 
-//         Instructions:
-//         1. Prepare all ingredients.
-//         2. Cook protein until done.
-//         3. Add vegetables and cook until tender.
-//         4. Add grains and seasonings.
-//         5. Serve hot.
+        Instructions:
+        1. Prepare all ingredients.
+        2. Cook protein until done.
+        3. Add vegetables and cook until tender.
+        4. Add grains and seasonings.
+        5. Serve hot.
 
-//         Health Benefits:
-//         - Rich in protein for muscle health
-//         - Contains fiber for digestive health
-//         - Provides complex carbohydrates for energy
-//         - Includes healthy fats for nutrient absorption
+        Health Benefits:
+        - Rich in protein for muscle health
+        - Contains fiber for digestive health
+        - Provides complex carbohydrates for energy
+        - Includes healthy fats for nutrient absorption
 
-//         Preparation Time: 20 minutes
+        Preparation Time: 20 minutes
 
-//         Nutritional Information:
-//         - Calories: varies based on specific ingredients
-//         - Protein: varies based on specific ingredients
-//         - Carbs: varies based on specific ingredients
-//         - Fat: varies based on specific ingredients`,
+        Nutritional Information:
+        - Calories: varies based on specific ingredients
+        - Protein: varies based on specific ingredients
+        - Carbs: varies based on specific ingredients
+        - Fat: varies based on specific ingredients`,
 
-//         query,
-//         results: [
-//           { title: "Recipe Result 1", url: "https://example.com/recipe1" },
-//           { title: "Recipe Result 2", url: "https://example.com/recipe2" }
-//         ]
-//       });
-//     }, 500); // Simulate network delay
-//   });
-// }
+        query,
+        results: [
+          { title: "Recipe Result 1", url: "https://example.com/recipe1" },
+          { title: "Recipe Result 2", url: "https://example.com/recipe2" }
+        ]
+      });
+    }, 500); // Simulate network delay
+  });
+}
 
 
 router.get('/test-tavily', async (req, res) => {
@@ -2608,9 +2606,7 @@ router.post('/mealplan', async (req, res) => {
   }
 });
 
-/**
- * Get a specific day from the meal plan
- */
+
 router.post('/mealplan/day', async (req, res) => {
   try {
     const { clerkId, day } = getMealPlanDaySchema.parse(req.body);
