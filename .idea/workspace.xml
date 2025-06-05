@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f8c59f4-3e80-4c8a-8874-948aefd67122" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nutrino_Server/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nutrino_Server/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthFeedback.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthFeedback.route.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthstatus.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/src/routes/healthstatus.route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Nutrino_Server/src/routes/mealPlanning.route.js" beforeDir="false" afterPath="$PROJECT_DIR$/Nutrino_Server/src/routes/mealPlanning.route.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/client/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,10 +27,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Saikat123Dev&quot;
-  }
+  &quot;lastFilter&quot;: {}
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
@@ -39,6 +35,9 @@
     &quot;accountId&quot;: &quot;8b7b0c51-825f-4341-a6a2-7f7251c08f80&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/client/app/(tabs)/_layout.tsx" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -53,21 +52,23 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/arch/my-workspace/freelancing/stchit/Neutrino",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/arch/my-workspace/freelancing/stchit/Neutrino/client/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/arch/my-workspace/freelancing/stchit/Neutrino&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;TeamCity.settings.ProjectSettings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/arch/my-workspace/freelancing/stchit/Neutrino/client/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactDesignerToolWindowState">
     <option name="myId2Visible">
       <map>
@@ -96,11 +97,27 @@
       <workItem from="1746167519693" duration="15698000" />
       <workItem from="1746278389768" duration="2505000" />
       <workItem from="1746347382775" duration="1080000" />
+      <workItem from="1746722109472" duration="495000" />
+      <workItem from="1746722628626" duration="760000" />
+      <workItem from="1748948514512" duration="197000" />
+      <workItem from="1748950955299" duration="21000" />
+      <workItem from="1749123636310" duration="2800000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -112,5 +129,9 @@
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
