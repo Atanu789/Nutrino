@@ -79,6 +79,7 @@ export default function LanguageLearningScreen() {
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 500,
+      
       easing: Easing.out(Easing.exp),
       useNativeDriver: true,
     }).start();
