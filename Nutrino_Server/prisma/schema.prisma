@@ -40,21 +40,57 @@ enum Frequency {
 
 // ===== MODELS =====
 
+// Add this enum for conversation types
+enum ConversationType {
+  GENERAL_HEALTH
+  NUTRITION_FACTS
+  MEAL_PLANNING
+  EXERCISE_ADVICE
+  MEDICAL_QUERY
+}
+
+// Add this model to your existing schema.prisma file
+model HealthConversation {
+  id               Int              @id @default(autoincrement())
+  userId           Int
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Conversation content
+  userMessage      String           @db.Text
+  aiResponse       String           @db.Text // JSON string containing the AI response
+  
+  // Metadata
+  usedWebSearch    Boolean          @default(false)
+  sources          String?          @db.Text // JSON string containing sources if web search was used
+  isFallback       Boolean          @default(false) // True if this was a fallback response
+  conversationType ConversationType @default(GENERAL_HEALTH)
+  
+  // Timestamps
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt])
+  @@index([conversationType])
+}
+
+// Update your User model to include the health conversations relation
+// Add this to your existing User model:
 model User {
   id      Int    @id @default(autoincrement())
   name    String
   email   String @unique
   clerkId String @unique
 
-  healthProfile HealthProfile?
-  badHabits     BadHabit[]
-  sleepPatterns SleepPattern[]
-  stressFactors StressSource[]
-  mentalHealth  MentalHealth?
-  HealthReport  HealthReport?
-  mealPlan      MealPlan?
+  healthProfile      HealthProfile?
+  badHabits          BadHabit[]
+  sleepPatterns      SleepPattern[]
+  stressFactors      StressSource[]
+  mentalHealth       MentalHealth?
+  healthReport       HealthReport?
+  mealPlan           MealPlan?
+  healthConversations HealthConversation[] // Add this line
 }
-
 model HealthProfile {
   id                 Int            @id @default(autoincrement())
   userId             Int            @unique

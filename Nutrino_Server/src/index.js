@@ -5,6 +5,9 @@ import webhookUserCreateRoutes from './routes/auth.route.js';
 import healthFeedback from './routes/healthFeedback.route.js';
 import healthProfileRoutes from './routes/healthstatus.route.js';
 import mealPlanning from './routes/mealPlanning.route.js';
+import meal from "./routes/mealPlanV.route.js"
+import conversation from "./routes/conversation.route.js"
+import exercise from "./routes/exercise.router.cjs"
 const app = express();
 
 
@@ -25,9 +28,9 @@ app.use("/api/v1/auth",webhookUserCreateRoutes)
 app.use("/api/v1/healthstatus",healthProfileRoutes)
 app.use("/api/v1/feedback",healthFeedback)
 app.use("/api/v1/user",mealPlanning)
-
-
-
+app.use("/api",conversation)
+app.use("/api/exercise",exercise)
+app.use("/api",meal)
 
 
 const server = app.listen(PORT, () => {

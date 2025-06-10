@@ -2,7 +2,7 @@ import { useOAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -45,23 +45,19 @@ const SocialLoginButton = ({
   };
 
   // Effect to handle navigation after user data is loaded
-  // useEffect(() => {
-  //   if (isLoaded && isSignedIn) {
-  //     console.log("User is signed in, navigating...");
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      console.log("User is signed in, navigating...");
 
-  //     // Always navigate to complete-your-profile after login
-  //     // router.push("/auth/complete-your-account");
+      // Always navigate to complete-your-profile after login
+      router.push("/auth/complete-your-account");
 
-  //     // Uncomment this if you want to conditionally navigate based on profile completion
-  //     /*
-  //     if (!isProfileComplete(user)) {
-  //       router.push("/complete-your-profile");
-  //     } else {
-  //       router.push("/home");
-  //     }
-  //     */
-  //   }
-  // }, [isLoaded, isSignedIn, user, router]);
+      // Uncomment this if you want to conditionally navigate based on profile completion
+      
+    
+      
+    }
+  }, [isLoaded, isSignedIn, user, router]);
 
   const buttonText = () => {
     if (isLoading) {

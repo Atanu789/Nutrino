@@ -2,7 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import geminiAI from "../lib/AI.js";
 import prisma from "../lib/db.js";
-import { tavilySearch } from "../utils/tavilyClient.js";
+// import { tavilySearch } from "../utils/tavilyClient.js";
 
 const router = Router();
 
